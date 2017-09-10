@@ -1,14 +1,14 @@
 <?php /* Template Name: 留言板 */
 get_header(); ?>
 
-<div id="ctn">
+<div id="page-warp">
 <div id="content">
 
 <?php while ( have_posts() ) : the_post(); ?>
 
-<div class="post_ctn">
+<div class="post_warp">
 
-	<div class="post_t"><?php the_content(); ?></div>
+	<div class="post_content"><?php the_content(); ?></div>
 
 	<?php comments_template( '', true ); ?>
 
