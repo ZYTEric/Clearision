@@ -14,7 +14,7 @@
 	<?php
 	$clrs_share = get_option('clrs_share');
 	if (!empty($clrs_share)) {
-		echo $clrs_share;
+		echo clrs_shortcode_content($clrs_share);
 	}
 	?>
 	<div style='clear: both;' />

@@ -1,16 +1,27 @@
 <?php
+function clrs_va($option)
+{
+    if (get_option($option) == "yes") {
+        echo 'checked="true"';
+    }
+}
+
+function clrs_vb($option)
+{
+    if (get_option($option) !== "yes") {
+        echo 'checked="true"';
+    }
+}
+
 function clrs_dashboard()
 {
     wp_enqueue_media();
     wp_enqueue_style('wp-color-picker');
-    wp_enqueue_script('wp-color-picker');
-    wp_enqueue_script('clrs-colorpicker', get_template_directory_uri() . '/assets/scripts/wp-color-picker-alpha.min.js', array('wp-color-picker', 'media'), false, true);
+    //wp_enqueue_script('wp-color-picker');
+    //wp_enqueue_script('clrs-colorpicker', get_template_directory_uri() . '/assets/scripts/wp-color-picker-alpha.min.js', array('wp-color-picker', 'media'), false, true);
     wp_enqueue_script('clrs-dashboard', get_template_directory_uri() . '/assets/scripts/dashboard.js', array('wp-color-picker', 'media'), false, true);
     ?>
     <style type="text/css">
-        input[type="text"] {
-            max-width: 510px;
-        }
 
         textarea {
             font-size: 14px;
@@ -71,11 +82,12 @@ function clrs_dashboard()
     </style>
 
     <h1>
-        <?php /*_e*/__('Clearision 主题设置', 'clrs'); ?>
+        Clearision 主题设置
     </h1>
     <?php $active_tab = isset($_GET['tab']) ? $_GET['tab'] : 'clrs_opt_common'; ?>
     <h2 class="nav-tab-wrapper">
         <a href="?page=clrs_menu&tab=clrs_opt_common" class="nav-tab <?php echo $active_tab == 'clrs_opt_common' ? 'nav-tab-active' : ''; ?>">常规设置</a>
+        <a href="?page=clrs_menu&tab=clrs_scontent" class="nav-tab <?php echo $active_tab == 'clrs_scontent' ? 'nav-tab-active' : ''; ?>">内容设置</a>
         <a href="?page=clrs_menu&tab=clrs_opt_seo" class="nav-tab <?php echo $active_tab == 'clrs_opt_seo' ? 'nav-tab-active' : ''; ?>">SEO优化</a>
         <a href="?page=clrs_menu&tab=clrs_opt_social" class="nav-tab <?php echo $active_tab == 'clrs_opt_social' ? 'nav-tab-active' : ''; ?>">社交信息</a>
         <a href="?page=clrs_menu&tab=clrs_opt_advanced" class="nav-tab <?php echo $active_tab == 'clrs_opt_advanced' ? 'nav-tab-active' : ''; ?>">高级功能</a>
@@ -88,6 +100,9 @@ function clrs_dashboard()
                 break;
             case 'clrs_opt_seo' :
                 clrs_opt_seo();
+                break;
+            case 'clrs_scontent' :
+                clrs_scontent();
                 break;
             case 'clrs_opt_advanced' :
                 clrs_opt_advanced();
@@ -182,7 +197,7 @@ function clrs_opt_common()
         <tr>
             <td>
                 <h3>LOGO头像</h3>
-                <img src="<?php echo get_option('clrs_logo'); ?>" height="60px" class="img-clrs_logo" />
+                <!--img src="<?php echo get_option('clrs_logo'); ?>" height="60px" class="img-clrs_logo" /-->
             </td>
             <td>
                 <table class="clearpm noresp">
@@ -202,7 +217,7 @@ function clrs_opt_common()
         <tr>
             <td>
                 <h3>网站图标</h3>
-                <img src="<?php echo get_option('clrs_favi'); ?>" height="32px" class="img-clrs_favi" />
+                <!--img src="<?php echo get_option('clrs_favi'); ?>" height="32px" class="img-clrs_favi" /-->
             </td>
             <td>
                 <table class="clearpm noresp">
@@ -222,7 +237,7 @@ function clrs_opt_common()
         <tr>
             <td>
                 <h3>底部LOGO</h3>
-                <img src="<?php echo get_option('clrs_ftlogo'); ?>" width="120px" class="img-clrs_ftlogo" />
+                <!--img src="<?php echo get_option('clrs_ftlogo'); ?>" width="120px" class="img-clrs_ftlogo" /-->
             </td>
             <td>
                 <table class="clearpm noresp">
@@ -233,16 +248,102 @@ function clrs_opt_common()
                         </td>
                         <td width="72px">
                             <input type="button" name="upload_button" value="选择文件" id="upload_btn_ftlogo" class="upload_btn button" data-fdname="clrs_ftlogo"
-                                data-as="底部LOGO" /><br />
+                                data-as="底部Lgoo" /><br />
                         </td>
                     </tr>
                 </table>
             </td>
         </tr>
-
     </table>
     <?php 
 }
+
+/* 内容 */
+function clrs_scontent(){
+    if (isset($_POST['option_save'])) {
+        
+        $clrs_noaccess = stripslashes($_POST['clrs_noaccess']);
+        update_option('clrs_noaccess', $clrs_noaccess);
+        
+        $clrs_login_redirect = stripslashes($_POST['clrs_login_redirect']);
+        update_option('clrs_login_redirect', $clrs_login_redirect);
+        
+        $clrs_index_header = stripslashes($_POST['clrs_index_header']);
+        update_option('clrs_index_header', $clrs_index_header);
+        
+        $clrs_index_header_title = stripslashes($_POST['clrs_index_header_title']);
+        update_option('clrs_index_header_title', $clrs_index_header_title);
+        
+        $clrs_index_header_link = stripslashes($_POST['clrs_index_header_link']);
+        update_option('clrs_index_header_link', $clrs_index_header_link);
+        
+        $clrs_cpyrt = stripslashes($_POST['clrs_cpyrt']);
+        update_option('clrs_cpyrt', $clrs_cpyrt);
+    } ?>
+
+    <table class="form-table">
+        <tr>
+            <td>
+                <h3>
+                    首页页头标题
+                </h3>
+            </td>
+            <td>
+                <table style="width: 100%">
+                    <tr>
+                        <td>文字</td>
+                        <td><input type="text" style="width: 100%" name="clrs_index_header_title" class="input-clrs_index_header_title" id="clrs_index_header_title" value="<?php echo get_option('clrs_index_header_title'); ?>"
+                            />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>链接</td>
+                        <td>
+                            <input type="text" style="width: 100%" name="clrs_index_header_link" class="input-clrs_index_header_link" id="clrs_index_header_link" value="<?php echo get_option('clrs_index_header_link'); ?>"
+                            />
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <h3>
+                    首页页头内容
+                </h3>
+            </td>
+            <td>
+                <?php do_action('edit_form_after_title'); ?>
+                <?php wp_editor( get_option('clrs_index_header'), 'clrs_index_header', $settings = array() ); ?> 
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <h3>
+                    无访问权限提示：
+                </h3>
+            </td>
+            <td><textarea name="clrs_noaccess" rows="5" cols="60" placeholder="当用户没有文章或页面的访问权限时将在内容部分显示本提示" style="font-size: 14px; font-family: Consolas, monospace, sans-serif, sans"><?php echo get_option('clrs_noaccess'); ?></textarea></td>
+        </tr>
+        <tr>
+            <td>
+                <h3>登录后跳转</h3>
+            </td>
+            <td><input type="text" style="width: 100%" name="clrs_login_redirect" id="clrs_login_redirect" placeholder="<?php echo home_url(); ?>" value="<?php echo get_option('clrs_login_redirect'); ?>" /></td>
+        </tr>
+        <tr>
+            <td>
+                <h3>
+                    版权信息：
+                </h3>
+            </td>
+            <td>
+                <textarea name="clrs_cpyrt" id="clrs_cpyrt" rows="3" cols="60" style="font-size: 14px; font-family: Consolas, monospace, sans-serif, sans"><?php echo get_option('clrs_cpyrt'); ?></textarea>
+            </td>
+        </tr>
+    </table>
+<?php }
+
 /*        SEO      */
 function clrs_opt_seo()
 {
@@ -253,9 +354,6 @@ function clrs_opt_seo()
         $clrs_desc = stripslashes($_POST['clrs_desc']);
         update_option('clrs_desc', $clrs_desc);
 
-        $clrs_cpyrt = stripslashes($_POST['clrs_cpyrt']);
-        update_option('clrs_cpyrt', $clrs_cpyrt);
-
         $clrs_tongji = stripslashes($_POST['clrs_tongji']);
         update_option('clrs_tongji', $clrs_tongji);
     } ?>
@@ -263,7 +361,7 @@ function clrs_opt_seo()
         <tr>
             <td>
                 <h3>
-                    <?php /*_e*/__('网站关键字：', 'clrs'); ?>
+                    网站关键字：
                 </h3>
             </td>
             <td><textarea name="clrs_keywd" id="clrs_keywd" rows="3" cols="60" style="font-size: 14px; font-family: Consolas, monospace, sans-serif, sans"><?php echo get_option('clrs_keywd'); ?></textarea></td>
@@ -271,7 +369,7 @@ function clrs_opt_seo()
         <tr>
             <td>
                 <h3>
-                    <?php /*_e*/__('网站介绍：', 'clrs'); ?>
+                    网站介绍：
                 </h3>
             </td>
             <td><textarea name="clrs_desc" id="clrs_desc" rows="3" cols="60" style="font-size: 14px; font-family: Consolas, monospace, sans-serif, sans"><?php echo get_option('clrs_desc'); ?></textarea></td>
@@ -279,20 +377,10 @@ function clrs_opt_seo()
         <tr>
             <td>
                 <h3>
-                    <?php /*_e*/__('版权信息：', 'clrs'); ?>
+                    统计代码：
                 </h3>
             </td>
-            <td>
-                <textarea name="clrs_cpyrt" id="clrs_cpyrt" rows="3" cols="60" style="font-size: 14px; font-family: Consolas, monospace, sans-serif, sans"><?php echo get_option('clrs_cpyrt'); ?></textarea>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <h3>
-                    <?php /*_e*/__('统计代码：', 'clrs'); ?>
-                </h3>
-            </td>
-            <td><textarea name="clrs_tongji" rows="5" cols="60" placeholder="<?php /*_e*/__('输入网站统计代码', 'clrs'); ?>" style="font-size: 14px; font-family: Consolas, monospace, sans-serif, sans"><?php echo get_option('clrs_tongji'); ?></textarea></td>
+            <td><textarea name="clrs_tongji" rows="5" cols="60" placeholder="输入网站统计代码" style="font-size: 14px; font-family: Consolas, monospace, sans-serif, sans"><?php echo get_option('clrs_tongji'); ?></textarea></td>
         </tr>
     </table>
     <?php 
@@ -322,6 +410,9 @@ function clrs_opt_social()
         $clrs_link = stripslashes($_POST['clrs_link']);
         update_option('clrs_link', $clrs_link);
 
+        $clrs_logo = stripslashes($_POST['clrs_default_avatar']);
+        update_option('clrs_default_avatar', $clrs_logo);
+
         foreach ($clrs_sns as $clrs_sns_id => $clrs_sns_name) {
             $clrs_sns_id = 'clrs_s_' . $clrs_sns_id;
             update_option($clrs_sns_id, stripslashes($_POST[$clrs_sns_id]));
@@ -335,9 +426,9 @@ function clrs_opt_social()
             </td>
             <td>
                 <input type="radio" name="clrs_author_display" value="yes" required="required" <?php clrs_va("clrs_author_display"); ?>/>
-                <?php /*_e*/__('显示', 'clrs'); ?>&nbsp;&nbsp;&nbsp;&nbsp;
+                显示&nbsp;&nbsp;&nbsp;&nbsp;
                 <input type="radio" name="clrs_author_display" value="no" required="required" <?php clrs_vb("clrs_author_display"); ?>/>
-                <?php /*_e*/__('不显示', 'clrs'); ?>
+                不显示
             </td>
         </tr>
         <tr>
@@ -364,9 +455,29 @@ function clrs_opt_social()
         </tr>
         <tr>
             <td>
+                <h3>用户默认头像</h3>
+                <!--img src="<?php echo get_option('clrs_default_avatar'); ?>" height="60px" class="img-clrs_default_avatar" /-->
+            </td>
+            <td>
+                <table class="clearpm noresp">
+                    <tr>
+                        <td>
+                            <input type="text" name="clrs_default_avatar" class="input-clrs_default_avatar" id="clrs_default_avatar" value="<?php echo get_option('clrs_default_avatar'); ?>"
+                            />
+                        </td>
+                        <td width="72px">
+                            <input type="button" name="upload_button" value="选择文件" id="upload_btn_logo" class="upload_btn button" data-fdname="clrs_default_avatar"
+                                data-as="LOGO头像" />
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td>
                 <h3>分享代码</h3>
             </td>
-            <td><textarea name="clrs_share" rows="5" cols="60" placeholder="<?php /*_e*/__('输入文章代码', 'clrs'); ?>" style="font-size: 14px; font-family: Consolas, monospace, sans-serif, sans"><?php echo get_option('clrs_share'); ?></textarea></td>
+            <td><textarea name="clrs_share" rows="5" cols="60" placeholder="输入文章代码" style="font-size: 14px; font-family: Consolas, monospace, sans-serif, sans"><?php echo get_option('clrs_share'); ?></textarea></td>
         </tr>
         <tr>
             <td>
@@ -374,10 +485,10 @@ function clrs_opt_social()
             </td>
             <td>
                 <input type="radio" name="clrs_link_display" value="yes" required="required" <?php clrs_va("clrs_link_display"); ?>                />
-                <?php /*_e*/__('显示', 'clrs'); ?>&nbsp;&nbsp;&nbsp;&nbsp;
+                显示&nbsp;&nbsp;&nbsp;&nbsp;
                 <input type="radio" name="clrs_link_display" value="no" required="required" <?php clrs_vb("clrs_link_display"); ?>                />
-                <?php /*_e*/__('不显示', 'clrs'); ?><br><br>
-                <textarea name="clrs_link" rows="10" cols="60" placeholder="<?php /*_e*/__('在这里使用 HTML 代码自定义友链区的内容', 'clrs'); ?>" style="font-size: 14px; font-family: Consolas, monospace, sans-serif, sans"><?php echo get_option('clrs_link'); ?></textarea>
+                不显示<br><br>
+                <textarea name="clrs_link" rows="10" cols="60" placeholder="在这里使用 HTML 代码自定义友链区的内容" style="font-size: 14px; font-family: Consolas, monospace, sans-serif, sans"><?php echo get_option('clrs_link'); ?></textarea>
             </td>
         </tr>
     </table>
@@ -394,11 +505,16 @@ function clrs_opt_advanced()
         update_option('clrs_thrdptComs_jq', $clrs_thrdptComs_jq);
         $clrs_thrdptComs_jq_ver = stripslashes($_POST['clrs_thrdptComs_jq_ver']);
         update_option('clrs_thrdptComs_jq_ver', $clrs_thrdptComs_jq_ver);
+        //Gravatar
+        $clrs_avatar_domain = stripslashes($_POST['clrs_avatar_domain']);
+        update_option('clrs_avatar_domain', $clrs_avatar_domain);
         //Font Awesome
         $clrs_thrdptComs_fa = stripslashes($_POST['clrs_thrdptComs_fa']);
         update_option('clrs_thrdptComs_fa', $clrs_thrdptComs_fa);
         $clrs_thrdptComs_fa_ver = stripslashes($_POST['clrs_thrdptComs_fa_ver']);
         update_option('clrs_thrdptComs_fa_ver', $clrs_thrdptComs_fa_ver);
+        $clrs_thrdptComs_btgird_ver = stripslashes($_POST['clrs_thrdptComs_btgird_ver']);
+        update_option('clrs_thrdptComs_btgird_ver', $clrs_thrdptComs_btgird_ver);
     } ?>
     <table class="form-table">
         <tr>
@@ -422,14 +538,26 @@ function clrs_opt_advanced()
                         <td>&nbsp;版本&nbsp;<input type="text" size="4" name="clrs_thrdptComs_fa_ver" id="clrs_thrdptComs_fa_ver"
                                 placeholder="4.7.0" value="<?php echo get_option('clrs_thrdptComs_fa_ver'); ?>" /></td>
                     </tr>
+                    <tr>
+                        <td><input name="clrs_thrdptComs_btgird" type="checkbox" value="yes" checked disabled /></td>
+                        <td><a href="http://getbootstrap.com/" target="_blank">Bootstrap Gird</a></td>
+                        <td>&nbsp;版本&nbsp;<input type="text" size="8" name="clrs_thrdptComs_btgird_ver" id="clrs_thrdptComs_btgird_ver"
+                                placeholder="4.0.0-beta" value="<?php echo get_option('clrs_thrdptComs_btgird_ver'); ?>" /></td>
+                    </tr>
                 </table>
             </td>
         </tr>
         <tr>
             <td>
+                <h3>Gravatar地址</h3>
+            </td>
+            <td><input type="text" style="width: 100%" name="clrs_avatar_domain" id="clrs_avatar_domain" placeholder="https://secure.gravatar.com" value="<?php echo get_option('clrs_avatar_domain'); ?>" /></td>
+        </tr>
+        <tr>
+            <td>
                 <h3>自定义样式</h3>
             </td>
-            <td><textarea name="clrs_style" rows="10" cols="60" placeholder="<?php /*_e*/__('输入 CSS 代码，以便更新时不会被覆盖', 'clrs'); ?>" style="font-size: 14px; font-family: Consolas, monospace, sans-serif, sans"><?php echo get_option('clrs_style'); ?></textarea></td>
+            <td><textarea name="clrs_style" rows="10" cols="60" placeholder="输入 CSS 代码，以便更新时不会被覆盖" style="font-size: 14px; font-family: Consolas, monospace, sans-serif, sans"><?php echo get_option('clrs_style'); ?></textarea></td>
         </tr>
     </table>
 

@@ -10,7 +10,7 @@ if (!empty($clrs_ftlogo)) {
   echo '<img src="'.$clrs_ftlogo.'" width="120" height="30" /><br />';
 }
 if (!empty($clrs_cpyrt)) {
-  echo str_replace('{year}', date('Y'),$clrs_cpyrt);
+  echo str_replace('{year}', date('Y', clrs_time()),$clrs_cpyrt);
 }
 ?>
 </footer>

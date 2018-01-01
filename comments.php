@@ -1,4 +1,8 @@
-<?php if ( post_password_required() ) return; ?>
+<?php
+if ( post_password_required() ) return;
+$onlyMembersCanComment = get_post_meta(get_the_ID(), 'onlyMembersCanComment', true) === 'yes' ? true : false;
+if($onlyMembersCanComment && !is_user_logged_in()) return;
+?>
 <div id="comment" class="comment">
 
 	<?php if ( have_comments() ) : ?>
@@ -28,7 +32,7 @@
   'cancel_reply_link' => __('撤销评论','clrs'),
   'label_submit'      => __('提交','clrs'),
 
-  'comment_field' =>  '<p class="comment-form-comment"><textarea id="comment" name="comment" cols="45" rows="8" required aria-required="true"></textarea></p>',
+  'comment_field' =>  '<div class="row"><div class="col-12" ><p class="comment-form-comment"><textarea style="max-width: none; width: 100%;" id="comment" name="comment" rows="8" required aria-required="true"></textarea></p></div></div>',
   'must_log_in' => '<p class="must-log-in">' .
     sprintf(
       __( '你必须 <a href="%s">登录</a> 后评论。' , 'clrs' ),
@@ -37,32 +41,48 @@
 
   'logged_in_as' => '<p class="logged-in-as">' .
     sprintf(
-    __('以 <a href="%1$s">%2$s</a> 登录。 <a href="%3$s" title="Log out of this account">退出</a>','clrs'),
+    __('您当前使用的账号是 <a href="%1$s">%2$s</a> 。 <a href="%3$s" title="注销并返回登录界面">退出</a>','clrs'),
       admin_url( 'profile.php' ),
       $user_identity,
       wp_logout_url( apply_filters( 'the_permalink', get_permalink( ) ) )
     ) . '</p>',
 
-  'comment_notes_before' => __('发表评论','clrs'),
+  'comment_notes_before' => '<div class="row"><div class="col-12">发表评论</div></div>',
 
-  'comment_notes_after' => '',
-
+  //'comment_notes_after' => '',
+  'submit_field'         => '<div class="row"><div class="col-12">%1$s %2$s</div></div>',
   'fields' => apply_filters( 'comment_form_default_fields', array(
 
     'author' =>
-      '<input placeholder="'.__('昵称','clrs').'" id="author" name="author" type="text" required="required" value="' . esc_attr( $commenter['comment_author'] ) .
-      '" />',
+      '<div class="col-12 col-sm-6"><input style="width: 100%;" placeholder="'.__('昵称','clrs').'" id="author" name="author" type="text" required="required" value="' . esc_attr( $commenter['comment_author'] ) .
+      '" /></div>',
 
     'email' =>
-      '<input placeholder="'.__('邮箱','clrs').'" id="email" name="email" type="email" required="required" value="' . esc_attr(  $commenter['comment_author_email'] ) .
-      '" />',
+      '<div class="col-12 col-sm-6" ><input style="width: 100%;" placeholder="'.__('邮箱','clrs').'" id="email" name="email" type="email" required="required" value="' . esc_attr(  $commenter['comment_author_email'] ) .
+      '" /></div>',
 
     'url' =>
-      '<input placeholder="'.__('站点','clrs').'" id="url" name="url" type="text" value="' . esc_attr( $commenter['comment_author_url'] ) .
-      '" />'
+      '<div class="col-12 col-sm-6"><input placeholder="'.__('站点','clrs').'" id="url" name="url" type="text" value="' . esc_attr( $commenter['comment_author_url'] ) .
+      '" /></div>'
     )
   ),
 );
+
+add_action('comment_form_top', function(){
+  echo '<div class="container-fluid" style="margin: unset;">';
+});
+
+add_action('comment_form_before_fields', function(){
+  echo '<div class="row">';
+});
+
+add_action('comment_form_after_fields', function(){
+  echo '</div>';
+});
+
+add_action('comment_form', function(){
+  echo '</div>';
+});
 ?>
 
 	<?php comment_form($comments_args); ?>

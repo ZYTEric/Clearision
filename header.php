@@ -66,30 +66,29 @@
 <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="<?php bloginfo('rss2_url') ?>" />
 <link rel="alternate" type="application/rdf+xml" title="RSS 1.0" href="<?php bloginfo('rss_url') ?>" />
 <link rel="alternate" type="application/atom+xml" title="ATOM 1.0" href="<?php bloginfo('atom_url') ?>" />
-<meta name="baidu-site-verification" content="z4mczvTaz7" />
 <!--[if lt IE 9]>
 <script src="<?php echo get_template_directory_uri(); ?>/assets/scripts/html5.js" type="text/javascript"></script>
 <![endif]-->
 <?php
 wp_head();
 $clrs_style = get_option("clrs_style");
-$clrs_opbg_des = get_option('clrs_opbg_des');
+$clrs_opbg_des = clrs_checkRandURI(get_option('clrs_opbg_des'),'clrs_opbg_des');
 $clrs_opcl_des = get_option('clrs_opcl_des');
-$clrs_opbg_mobi = get_option('clrs_opbg_mobi');
+$clrs_opbg_mobi = clrs_checkRandURI(get_option('clrs_opbg_mobi'),'clrs_opbg_mobi');
 $clrs_opcl_mobi = get_option('clrs_opcl_mobi');
+if (!empty($clrs_opcl_mobi)){echo '<meta name="theme-color" content="'.$clrs_opcl_mobi.'" />';}
 echo "<style>";
 if (is_user_logged_in()) echo '#float { top: 32px; }'; // 适配 WordPress 顶部管理栏
-echo '@media screen and (min-width: 600px){';
+echo '@media screen and (min-width: 620px){';
 if (!empty($clrs_opbg_des)) echo "body { background-image: url('" . $clrs_opbg_des . "'); }";
 if (!empty($clrs_opcl_des)) echo "body { background-color: " . $clrs_opcl_des . "; }";
 echo '}';
-echo '@media screen and (max-width: 600px){';
+echo '@media screen and (max-width: 620px){';
 if (!empty($clrs_opbg_mobi)) echo "body { background-image: url('" . $clrs_opbg_mobi . "'); }";
 if (!empty($clrs_opcl_mobi)) echo "body { background-color: " . $clrs_opcl_mobi . "; }";
 echo '}';
 if (!empty($clrs_style)) echo $clrs_style;
-echo "</style>";
-?>
+echo "</style>";?>
 </head>
 
 <body <?php body_class(); ?>>
@@ -106,7 +105,7 @@ echo "</style>";
         <a href="<?php echo admin_url(); ?>" target="_blank" class="tr_admin_a"><button id="tr_admin"></button></a>
         <span id="tr_clear"></span>
         <form id="tr_s_f" method="get" action="<?php echo esc_url(home_url('/')); ?>">
-            <input id="tr_search" type="text" name="s" id="s" placeholder="" size="10" />
+            <input id="tr_search" type="text" name="s" placeholder="" size="10" />
         </form>
     </div>
 <div class="clearfix"></div>

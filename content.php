@@ -1,3 +1,6 @@
+<?php
+$onlyMembersCanView = get_post_meta(get_the_ID(), 'onlyMembersCanView', true)=== 'yes' ? true : false;
+?>
 <hgroup class="post_header">
 	<h2 class="post_title">
 		<a href="<?php the_permalink(); ?>">
@@ -14,8 +17,6 @@
 			$c_adis = 'style="display:none;"';
 		};
 		the_tags('', ' ', '');
-
-
 		?>
 		<span class="post_tag_col" <?php echo $c_adis; ?>><a><i class="fa fa-user" aria-hidden="true">&nbsp;作者 <?php the_author();?></i></a></span>
 
@@ -29,18 +30,26 @@
 		<span class="post_tag_col"><?php echo edit_post_link(__('编辑文章', 'clrs')); ?></span>
 	</div>
 </hgroup>
-
-<div class="post_content">
-	<?php if (get_post_format() == 'quote') { ?>
-	<a href="<?php the_permalink(); ?>">
-		<?php the_content(''); ?>
-	</a>
-	<?php 
+<div class="post_content"><?php
+if($onlyMembersCanView && !is_user_logged_in()){
+    $_na_msg = get_option('clrs_noaccess');
+    $_na_msg = str_replace('{{page_url}}', urlencode(home_url(add_query_arg(array(),$wp->request))),$_na_msg);
+    echo empty($_na_msg) ? '本页面仅对登陆用户开放':do_shortcode($_na_msg);
+}else{
+    if (get_post_format() == 'quote') {
+        echo '<a href="'; the_permalink(); echo '">';
+        the_content('');
+        echo '</a>';
+    }else{
+        the_content('');
+    }
 }
-else {
-	the_content('');
-}; ?>
+?>
 	<h2 class="post_h_quote">
 		<?php the_title(); ?>
 	</h2>
+	
+	<p style="text-align: right; font-size: .8em;">
+		最后修订于&nbsp;<?php echo esc_html( get_the_modified_time('Y年m月d日') ); ?>
+	</p>
 </div>
