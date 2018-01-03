@@ -1,5 +1,4 @@
 <?php get_header(); ?>
-<div id="page-warp">
 <style>
     nav.post_nav_bds{
         padding-bottom: 0 !important;
@@ -43,26 +42,28 @@
         width: calc(100% - 60px);
     }
 </style>
-<div id="content">
-    <div class="post_warp">
-    	<hgroup class="post_header">
-    		<h2 class="post_title"><a href="javascript:;">404 您查找的页面不存在</a></h2>
-    	</hgroup>
-    	<div class="post_content">
-    	    <p style="margin-bottom: 0">很抱歉，您要寻找的页面不存在或已被删除。请确认您访问的页面地址是否正确。</p>
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-4 col-md-12 p404-col"><?php dynamic_sidebar( 'clra_404_1' ); ?></div>
-                    <div class="col-lg-4 col-md-12 p404-col"><?php dynamic_sidebar( 'clra_404_2' ); ?></div>
-                    <div class="col-lg-4 col-md-12 p404-col"><?php dynamic_sidebar( 'clra_404_3' ); ?></div>
-                </div>
-            </div>
-    	</div>
-        <nav class="post_nav_bds">
-        	<a href="<?php echo $clrs_siteURL; ?>" rel="home" class="goHome">
-        		<i class="fa fa-home" aria-hidden="true">&nbsp; 返回首页</i>
-        	</a>
-        </nav>
-    </div>
+<div id="page-warp">
+	<div id="content">
+	    <div class="post_warp">
+	    	<hgroup class="post_header">
+	    		<h2 class="post_title"><a href="javascript:;">404 您查找的页面不存在</a></h2>
+	    	</hgroup>
+	    	<div class="post_content">
+	    	    <p style="margin-bottom: 0">很抱歉，您要寻找的页面不存在或已被删除。请确认您访问的页面地址是否正确。</p>
+	            <div class="container">
+	                <div class="row">
+	                    <div class="col-lg-4 col-md-12 p404-col"><?php dynamic_sidebar( 'clra_404_1' ); ?></div>
+	                    <div class="col-lg-4 col-md-12 p404-col"><?php dynamic_sidebar( 'clra_404_2' ); ?></div>
+	                    <div class="col-lg-4 col-md-12 p404-col"><?php dynamic_sidebar( 'clra_404_3' ); ?></div>
+	                </div>
+	            </div>
+	    	</div>
+	        <nav class="post_nav_bds">
+	        	<a href="<?php echo $clrs_siteURL; ?>" rel="home" class="goHome">
+	        		<i class="fa fa-home" aria-hidden="true">&nbsp; 返回首页</i>
+	        	</a>
+	        </nav>
+	    </div>
+	</div>
 </div>
-</div>
+<?php get_footer(); ?>
