@@ -47,7 +47,8 @@
     ##    ##       ##  ##    ##    ##  ######### ##     ##   #######        ########   ##      ###  ##    ########    ##      ###
 
                                                            驯兽师联盟 | Tamers Union
-                                                Theme by : Clearision, Kenta <kenta@live.cn>
+													Themed by dimpurr, Customed by Kenta
+												Restricted by GNU General Public License v2.0
 -->
 <!DOCTYPE html>
 <html lang="zh-cn">
@@ -69,6 +70,7 @@
 <!--[if lt IE 9]>
 <script src="<?php echo get_template_directory_uri(); ?>/assets/scripts/html5.js" type="text/javascript"></script>
 <![endif]-->
+<script>var resourceUIR="<?php echo clrs_getResURL(); ?>";</script>
 <?php
 wp_head();
 $clrs_style = get_option("clrs_style");
@@ -92,7 +94,24 @@ echo "</style>";?>
 </head>
 
 <body <?php body_class(); ?>>
+
+<?php function clrs_zhushi_topmenu(){ ?>
+    <div id="float1" >
+    
+    <a href="<?php echo esc_url(home_url('/')); ?>" title="<?php echo esc_attr(get_bloginfo('name', 'display')); ?>" rel="home"><img id="logo1" alt="<?php bloginfo('name'); ?>" title="<?php bloginfo('name'); ?>" src="<?php echo get_option('clrs_logo'); ?>" ></a>
+    <nav id="next1" role="sencond_navigation">
+        <?php wp_nav_menu(array('theme_location' => 'next')); ?>
+    </nav>
+    
+    <nav id="nav1" role="navigation">
+        <?php wp_nav_menu(array('theme_location' => 'main')); ?>
+    </nav>
+    </div>
+    <!-- 请确保注释内容的所有代码均不运行 谢谢! -->
+<?php } ?>
+
 <div id="page">
+	
 
 <hgroup id="page-header">
     <div id="title">

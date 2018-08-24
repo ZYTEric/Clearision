@@ -515,6 +515,10 @@ function clrs_opt_advanced()
         update_option('clrs_thrdptComs_fa_ver', $clrs_thrdptComs_fa_ver);
         $clrs_thrdptComs_btgird_ver = stripslashes($_POST['clrs_thrdptComs_btgird_ver']);
         update_option('clrs_thrdptComs_btgird_ver', $clrs_thrdptComs_btgird_ver);
+        //KodExplorer Tonken
+        $clrs_kod_tonken = stripslashes($_POST['clrs_kod_tonken']);
+        update_option('clrs_kod_tonken', $clrs_kod_tonken);
+        
     } ?>
     <table class="form-table">
         <tr>
@@ -547,11 +551,17 @@ function clrs_opt_advanced()
                 </table>
             </td>
         </tr>
-        <tr>
+                <tr>
             <td>
                 <h3>Gravatar地址</h3>
             </td>
             <td><input type="text" style="width: 100%" name="clrs_avatar_domain" id="clrs_avatar_domain" placeholder="https://secure.gravatar.com" value="<?php echo get_option('clrs_avatar_domain'); ?>" /></td>
+        </tr>
+        <tr>
+            <td>
+                <h3>KodExplorer Tonken</h3>
+            </td>
+            <td><input type="text" style="width: 100%" name="clrs_kod_tonken" id="clrs_avatar_domain" placeholder="" value="<?php echo get_option('clrs_kod_tonken'); ?>" /></td>
         </tr>
         <tr>
             <td>

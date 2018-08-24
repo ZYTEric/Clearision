@@ -4,8 +4,8 @@
     $clrs_index_header_title = get_option('clrs_index_header_title');
     $clrs_index_header_link = get_option('clrs_index_header_link');
     if(is_home() && $wp_query->query_vars['paged'] <2 && !empty($clrs_index_header)){ ?>
-    <div id="page-warp">
-    	<div id="content">
+    <div class="page-warp">
+    	<div class="content">
             <article class="post-index-header post type-page status-publish hentry">
                 <?php if(!empty($clrs_index_header_title)){ ?>
     			<hgroup class="post_header" style="padding-bottom: .8em;">
@@ -27,8 +27,8 @@
 <?php } ?>
 <?php if (have_posts()) : ?>
 	<?php while (have_posts()) : the_post(); ?>
-	<div id="page-warp">
-		<div id="content">
+	<div class="page-warp">
+		<div class="content">
 			<article <?php post_class(); ?>>
 
 				<?php get_template_part('content'); ?>
@@ -43,8 +43,8 @@
 	</div>
 
 	<?php  else : ?>
-    <div id="page-warp">
-    	<div id="content">
+    <div class="page-warp">
+    	<div class="content">
             <article class="post-index-header post type-page status-publish hentry">
     			<hgroup class="post_header" style="padding-bottom: .8em;">
                 	<h2 class="post_title">找不到内容</h2>

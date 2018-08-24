@@ -1,0 +1,44 @@
+.newsletters_warp {
+    width: 100%;
+}
+.newsletters_warp .newsletters_header td{
+    padding-bottom: 1em;
+}
+
+.newsletters_warp .newsletters_header > .nl_icon{
+    width: 24px;
+}
+.newsletters_warp .newsletters_header > .nl_icon i{
+    transform: rotate(0deg);
+    transition: transform linear .3s;
+}
+.newsletters_warp.open .newsletters_header > .nl_icon i{
+    transform: rotate(90deg);
+}
+
+.newsletters_warp .newsletters_header > .nl_title{
+    font-weight: 700;
+    cursor: pointer;
+    transition: color linear .2s;
+}
+.newsletters_warp .newsletters_header > .nl_title:hover,
+.newsletters_warp.open .newsletters_header > .nl_title{
+    color: #d4da16;
+}
+
+.newsletters_warp .newsletters_header > .nl_time{
+    width: 6em;
+    text-align: right;
+}
+.newsletters_warp .newsletters_body div{
+    line-height: 2em;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: all .5s ease;
+}
+.newsletters_warp.open .newsletters_body div{
+    max-height: 100vh;
+    opacity: 1;
+    padding: .8em 0;
+}

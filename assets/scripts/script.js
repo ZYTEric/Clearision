@@ -34,6 +34,6 @@ var clrs_setCookie = function(name,value)
 };
 
 function clrs_pagebg(id){
-        clrs_setCookie('clrs_opbg_des', id);
-        document.body.style.backgroundImage="url('https://tu-static.fileisland.cn/wp-content/uploads/background"+id+".jpg')";
+    clrs_setCookie('clrs_opbg_des', id);
+    document.body.style.backgroundImage="url('" + resourceUIR + "/wp-content/uploads/background"+id+".jpg')";
 }

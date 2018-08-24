@@ -45,17 +45,17 @@
 <div id="page-warp">
 	<div id="content">
 	    <div class="post_warp">
-	    	<hgroup class="post_header">
-	    		<h2 class="post_title"><a href="javascript:;">404 您查找的页面不存在</a></h2>
+	    	<hgroup class="post_header"><h2 class="post_title"><a href="javascript:;">404 Not Found</a></h2>
 	    	</hgroup>
 	    	<div class="post_content">
-	    	    <p style="margin-bottom: 0">很抱歉，您要寻找的页面不存在或已被删除。请确认您访问的页面地址是否正确。</p>
+	    	    <p style="margin-bottom: 0">很抱歉，该页面不存在或已被删除。请确认您访问的页面地址是否正确。</p>
 	            <div class="container">
-	                <div class="row">
+					<img src="<?php echo $clrs_siteURL; ?>/wp-content/themes/clearision_reload_171106/assets/images/404.png" alt="" width="1079" height="1080" class="aligncenter size-full wp-image-5369" />
+	               <!--<div class="row">
 	                    <div class="col-lg-4 col-md-12 p404-col"><?php dynamic_sidebar( 'clra_404_1' ); ?></div>
 	                    <div class="col-lg-4 col-md-12 p404-col"><?php dynamic_sidebar( 'clra_404_2' ); ?></div>
 	                    <div class="col-lg-4 col-md-12 p404-col"><?php dynamic_sidebar( 'clra_404_3' ); ?></div>
-	                </div>
+	                </div>-->
 	            </div>
 	    	</div>
 	        <nav class="post_nav_bds">

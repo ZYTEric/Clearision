@@ -1,3 +1,4 @@
+<?php /* Template Name: without modification time */ ?>
 <?php
 get_header();
 $onlyMembersCanView = get_post_meta(get_the_ID(), 'onlyMembersCanView', true)=== 'yes' ? true : false;
@@ -21,9 +22,8 @@ $onlyMembersCanView = get_post_meta(get_the_ID(), 'onlyMembersCanView', true)===
 		};
 		the_tags('', ' ', '');
 		?>
-
 		<span class="post_tag_col"><?php echo edit_post_link(__('<i class="fa fa-pencil-square-o"></i> 编辑', 'clrs')); ?></span>
-	</div>
+	        </div>
 	</hgroup>
 	<div class="post_content"><?php
     if($onlyMembersCanView && !is_user_logged_in()){
@@ -32,9 +32,6 @@ $onlyMembersCanView = get_post_meta(get_the_ID(), 'onlyMembersCanView', true)===
         echo empty($_na_msg) ? '本页面仅对登录用户开放':do_shortcode($_na_msg);
     }else{
 	    the_content();?>
-		<p style="text-align: right; font-size: .8em;">
-			最后修订于&nbsp;<?php echo esc_html( get_the_modified_time('Y年m月d日') ); ?>
-		</p>
     <?php }
 	?></div>
   <nav class='post_nav_bds'>

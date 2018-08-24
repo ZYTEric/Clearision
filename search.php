@@ -46,14 +46,12 @@ get_header();?>
     <div id="page-warp">
     	<div id="content">
             <article class="post-index-header post type-page status-publish hentry">
-    			<hgroup class="post_header" style="padding-bottom: .8em;">
-                	<h2 class="post_title">搜索结果：找不到内容</h2>
+				<hgroup class="post_header" style="padding-bottom: .8em;"><h2 class="post_title">
+					<?php echo isset($_GET['s']) ? $_GET['s'] : '(空)'; ?> 的搜索结果</h2>
                 </hgroup>
                 <div class="post_content">
-                    <?php get_search_form(); ?>
-                    <p>很抱歉，没有找到与“<?php echo isset($_GET['s']) ? $_GET['s'] : '(空)'; ?>”相关的结果。请检查您的输入是否正确或者更换搜索关键词。</p>
-                    <p>如有疑问，可前往「咨询留言」中留言提出。</p>
-					
+                    <?php get_search_form(); ?><br>
+					<p>很抱歉，没有找到与“<?php echo isset($_GET['s']) ? $_GET['s'] : '(空)'; ?>”相关的结果。请检查您输入的关键词是否正确。</p>
                 </div>
                 <nav class="post_nav_bds">
                 	<a href="<?php echo $clrs_siteURL; ?>" rel="home" class="goHome">

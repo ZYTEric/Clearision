@@ -149,17 +149,27 @@ if (function_exists('register_sidebar')) {
 if (!function_exists('is_login_page')) {
     function is_login_page()
     {
-        return in_array($GLOBALS['pagenow'], array('wp-login.php', 'wp-register.php'));
+        return in_array($GLOBALS['pagenow'], array('wp-login.php', 'wp-signup.php'));
     }
 }
 
-$clrs_siteURL = trim(site_url(), '\t\n\r\0\x0B');
-if (is_callable('wpjam_qiniu_get_setting')) {
-    $clrs_resURL = clrs_rtrimstr(trim(wpjam_qiniu_get_setting('host'), '\t\n\r\0\x0B'), '/');
+$clrs_siteURL = trim(site_url(), "\t\n\r\0\x0B");
+if (is_callable('CDN_Enabler::get_options')) {
+    $clrs_resURL = clrs_rtrimstr(trim(CDN_Enabler::get_options()['url'], "\t\n\r\0\x0B"), '/');
     $clrs_themeDir = str_replace($clrs_siteURL, $clrs_resURL, get_template_directory_uri());
 } else {
     $clrs_resURL = $clrs_siteURL;
     $clrs_themeDir = get_template_directory_uri();
+}
+
+function clrs_getResURL(){
+    global $clrs_resURL;
+    return $clrs_resURL;
+}
+
+function clrs_getSiteURL(){
+    global $clrs_siteURL;
+    return $clrs_siteURL;
 }
 
 /**
@@ -333,6 +343,17 @@ function clrs_sns()
  */
 function clrs_pagenavi()
 {
+    function http_build_url($url_arr){
+        $new_url = $url_arr['scheme'] . "://".$url_arr['host'];
+        if(!empty($url_arr['port']))
+            $new_url = $new_url.":".$url_arr['port'];
+        $new_url = $new_url . $url_arr['path'];
+        if(!empty($url_arr['query']))
+            $new_url = $new_url . "?" . $url_arr['query'];
+        if(!empty($url_arr['fragment']))
+            $new_url = $new_url . "#" . $url_arr['fragment'];
+        return $new_url;
+    }
     global $wp_query, $wp_rewrite;
     $wp_query->query_vars['paged'] > 1 ? $current = $wp_query->query_vars['paged'] : $current = 1;
 
@@ -352,7 +373,10 @@ function clrs_pagenavi()
     );
 
     if ($wp_rewrite->using_permalinks()) {
-        $pagination['base'] = user_trailingslashit(trailingslashit(remove_query_arg('s', get_pagenum_link(1))) . 'page/%#%/', 'paged');
+        $url = parse_url(remove_query_arg('s', get_pagenum_link(1)));
+        $url['path'] = trailingslashit($url['path']);
+        $url['path'] .= 'page/%#%/';
+        $pagination['base'] = http_build_url($url);
     }
 
     if (!empty($wp_query->query_vars['s'])) {
@@ -392,8 +416,7 @@ function clrs_comment($comment, $args, $depth)
 
         echo 'Pingback ';
         comment_author_link();
-        edit_comment_link('编辑', '<span class="edit-link">', '</span>');
-
+        echo '<span class="edit-link"><a class="comment-edit-link" target="_self" href="'.get_edit_comment_link(get_comment_ID()).'">'.__('编辑', 'clrs').'</a></span>';
         echo '</p></li>';
     } else {
         $comment_attrs = [
@@ -431,43 +454,15 @@ function clrs_comment($comment, $args, $depth)
 	
 	            <section class="comment-content comment">
 	                <?php comment_text(); ?>
-	                <?php edit_comment_link(__('编辑', 'clrs'), '<span class="edit-link">', '</span>'); ?>
+                    <span class="edit-link"><a class="comment-edit-link" target="_self" href="<?php echo get_edit_comment_link(get_comment_ID()); ?>"><?php echo __('编辑', 'clrs') ?></a></span>
 	                <?php delete_comment_link(get_comment_ID()); ?>
-	                <?php comment_reply_link(array_merge($args, array('reply_text' => __('回复', 'clrs'), 'after' => '', 'depth' => $depth, 'max_depth' => 100))); ?>
+	                <?php echo str_replace('<a','<a target="_self"',get_comment_reply_link(array_merge($args, array('reply_text' => __('回复', 'clrs'), 'after' => '', 'depth' => $depth, 'max_depth' => 100)))); ?>
 	            </section>
 	        </article>
 	    <?php
     echo '</li>';
+    }
 }
-}
-
-/**
- * 添加用户字段
- *
- * @param array $user_contactmethods 默认用户字段
- * @return array
- */
-function clrs_user_contact(array $user_contactmethods)
-{
-    $user_contactmethods['job'] = '职位';
-    return $user_contactmethods;
-}
-add_filter('user_contactmethods', 'clrs_user_contact');
-
-/**
- * 禁用发表评论时不需要填写“站点”
- *
- * @param array $fields 默认表单域
- * @return array
- */
-function alter_comment_form_fields(array $fields)
-{
-    //$fields['author'] = '';
-    //$fields['email'] = '';
-    $fields['url'] = '';
-    return $fields;
-}
-add_filter('comment_form_default_fields', 'alter_comment_form_fields');
 
 /**
  * 格式化评论链接
@@ -510,7 +505,7 @@ if (!is_admin()) {
         $btgirdVerDefault = '4.0.0-beta';
         $btgirdVer = get_option('clrs_thrdptComs_btgird_ver', $btgirdVerDefault);
         $btgirdVer = empty($btgirdVer) ? $btgirdVerDefault : $btgirdVer;
-        wp_enqueue_style('clearision-bootstrap', 'https://cdn.bootcss.com/bootstrap/' . $btgirdVer . '/css/bootstrap-grid.css');
+        wp_enqueue_style('clearision-bootstrap', 'https://cdn.bootcss.com/bootstrap/' . $btgirdVer . '/css/bootstrap-grid.min.css');
     });
     
     //jQuery
@@ -554,43 +549,6 @@ if (!is_admin()) {
 }
 
 /**
- * 自定义头像
- */
-//写入默认头像列表
-function clrs_avatar_customURI($args, $id_or_email)
-{
-    $userInfo = clrs_userInfo($id_or_email);
-    if ($userInfo && $userInfo instanceof WP_User) {
-        $avatar = get_user_meta($userInfo->ID, 'avatar', true);
-        if (!empty($avatar) && clrs_startWith($avatar, 'http') && !$args['force_default']) {
-            $args['url'] = $avatar;
-        }
-    }
-    return $args;
-}
-add_filter('pre_get_avatar_data', 'clrs_avatar_customURI', 1, 2);
-//默认头像
-if (!empty(get_option('clrs_default_avatar'))) {
-    function clrs_avatar_default($avatar_defaults)
-    {
-        $avatar = get_option('clrs_default_avatar');
-        $avatar_defaults[$avatar] = "主题默认头像";
-        return $avatar_defaults;
-    }
-    add_filter('avatar_defaults', 'clrs_avatar_default');
-}
-//替换gravatar域名
-if (!empty(get_option('clrs_avatar_domain'))) {
-    function clrs_avatar_domain($args)
-    {
-        $avatar_domain = get_option('clrs_avatar_domain');
-        $args['url'] = preg_replace('/^http[s]?:\/\/(secure|\d{1,2}).gravatar.com/', $avatar_domain, $args['url']);
-        return $args;
-    }
-    add_filter('get_avatar_data', 'clrs_avatar_domain');
-}
-
-/**
  * 更改注册链接文字
  */
 add_filter('gettext', 'clrs_translate_text_strings', 20, 3);
@@ -602,107 +560,6 @@ function clrs_translate_text_strings($translated_text, $text, $domain)
             break;
     }
     return $translated_text;
-}
-
-/* ==================权限控制====================
- *                  Author: Kenta
- * 下方代码块主要功能是限制游客访问/评论特定页面. 
- * 涉及钩子:
- *     add_meta_boxes
- *     save_post
- *     manage_page_posts_columns
- *     manage_post_posts_columns
- *     manage_pages_custom_column
- *     manage_posts_custom_column
- * 对内容的显示控制存在于以下文件中:
- *     content.php
- *     page.php
- * 对评论的显示控制存在于以下文件中:
- *     comments.php
- * =============================================
- */
-
-/* 文章编辑器右侧的"访问权限"框
- *
- * Attention:
- * checkbox未选中时不在$_POST中出现
- * 为防止"快速编辑"提交的数据中不包含
- * 选项内容而导致判断为"非",请务必使用
- * 隐藏域作为选项的数据来源
- */
-add_action('add_meta_boxes', function () {
-    add_meta_box(
-        'clrs_mtbox_postAccess',
-        '访问权限',
-        function ($post) {
-            $onlyMembersCanView = get_post_meta($post->ID, 'onlyMembersCanView', true);
-            $onlyMembersCanComment = get_post_meta($post->ID, 'onlyMembersCanComment', true);
-            ?>
-                <input type="checkbox" <?php echo $onlyMembersCanView === 'yes' ? 'checked' : '' ?> onclick="document.getElementById('input_onlyMembersCanView').value = this.checked?'yes':'no'" />
-                <input type="hidden" name="onlyMembersCanView" id="input_onlyMembersCanView" value="<?php echo $onlyMembersCanView ?>" />
-                <label for="onlyMembersCanView">仅登录用户可浏览</label>
-            <br />
-                <input type="checkbox" <?php echo $onlyMembersCanComment === 'yes' ? 'checked' : '' ?> onclick="document.getElementById('input_onlyMembersCanComment').value = this.checked?'yes':'no'" />
-                <input type="hidden" name="onlyMembersCanComment" id="input_onlyMembersCanComment" value="<?php echo $onlyMembersCanComment ?>" />
-                <label for="onlyMembersCanComment">仅登录用户可评论</label>
-            <?php
-
-        },
-        null,
-        'side',
-        'low'
-    );
-});
-//保存文章/页面时更新权限选项
-add_action('save_post', function ($post_id) {
-    if (!current_user_can('edit_post', $post_id)) {
-        return;
-    }
-    if (isset($_POST['onlyMembersCanView'])) {
-        $onlyMembersCanView = $_POST['onlyMembersCanView'] === 'yes' ? 'yes' : 'no';
-        update_post_meta($post_id, 'onlyMembersCanView', $onlyMembersCanView);
-    }
-    if (isset($_POST['onlyMembersCanComment'])) {
-        $onlyMembersCanComment = $_POST['onlyMembersCanComment'] === 'yes' ? 'yes' : 'no';
-        update_post_meta($post_id, 'onlyMembersCanComment', $onlyMembersCanComment);
-    }
-});
-
-
-//文章/页面列表 创建数据列
-add_filter('manage_page_posts_columns', 'clrs_PostsAndPages_columnTitle_access');
-add_filter('manage_post_posts_columns', 'clrs_PostsAndPages_columnTitle_access');
-function clrs_PostsAndPages_columnTitle_access($columns)
-{
-    $columns['_clrs_access'] = '访问限制';
-    return $columns;
-}
-
-//文章/页面列表 填充数据列
-add_action('manage_pages_custom_column', 'clrs_PostsAndPages_columnContent_access', 10, 2);
-add_action('manage_posts_custom_column', 'clrs_PostsAndPages_columnContent_access', 10, 2);
-function clrs_PostsAndPages_columnContent_access($column_name, $id)
-{
-    switch ($column_name) {
-        case '_clrs_access':
-            $onlyMembersCanView = get_post_meta($id, 'onlyMembersCanView', true);
-            $onlyMembersCanComment = get_post_meta($id, 'onlyMembersCanComment', true);
-
-            if ($onlyMembersCanView !== 'yes' && !$onlyMembersCanComment !== 'yes') {
-                echo '—';
-            } else {
-                $_cantdo = [];
-                if ($onlyMembersCanView === 'yes') {
-                    array_push($_cantdo, '浏览');
-                }
-
-                if ($onlyMembersCanComment === 'yes') {
-                    array_push($_cantdo, '评论');
-                }
-                echo '游客不可 ' . implode($_cantdo, '、');
-            }
-            break;
-    }
 }
 
 /**
@@ -731,7 +588,7 @@ function clrs_shortcode_current_user($atts, $content = '')
 {
     $atts = shortcode_atts([
         'type' => 'display_name',
-        'guest' => '游客'
+        'guest' => '未登录'
     ], $atts, 'current_user');
 
     if (!is_user_logged_in()) {
@@ -756,14 +613,64 @@ function clrs_shortcode_current_user($atts, $content = '')
         case 'lastname':
             return $current_user->user_lastname;
             break;
+		case 'job':
+		    return $current_user->job;
+		    break;
+		case 'desc':
+		    return $current_user->description;
+		    break;
         case 'id':
             return $current_user->ID;
             break;
+        case 'thislogin':
+            $thislogin = $current_user->this_login;
+            return date( 'Y年m月d日 H:i', strtotime( $thislogin ) );
+        case 'lastlogin':
+            $lastlogin = $current_user->last_login;
+            if(empty($lastlogin)) return date( 'Y年m月d日 H:i', strtotime( $thislogin ) );
+            else return date( 'Y年m月d日 H:i', strtotime( $lastlogin ) );
+        case 'registered':
+            $registered = $current_user->user_registered;
+            return date( 'Y年m月d日', strtotime( $registered ) );
         case 'display_name':
         default:
             return $current_user->display_name;
             break;
     }
+}
+
+/**
+ * 记录本次/上次登录时间
+ */
+function user_last_login($user_login) {
+    global $user_ID;
+    // 纠正8小时时差
+    date_default_timezone_set(PRC);
+    $user = get_user_by( 'login', $user_login );
+    if(!empty(get_user_meta($user->ID,'this_login', true))) update_user_meta($user->ID, 'last_login', get_user_meta($user->ID,'this_login', true));
+    update_user_meta($user->ID, 'this_login', date('Y-m-d H:i:s'));
+}
+add_action('wp_login','user_last_login');
+
+/**
+ * 短代码： 当前用户IP
+ */
+function clrs_shortcode_user_ip() {
+        $ip = $_SERVER['REMOTE_ADDR'];
+        return $ip;
+}
+
+
+/**
+ * 短代码：KodExplorer登录链接
+ */
+function clrs_shortcode_kodexplorer_login()
+{
+    $current_user = wp_get_current_user();
+    $user = $current_user->user_login;
+    $login_token = base64_encode($user).'|'.md5($user.get_option('clrs_kod_tonken'));
+    $url = 'https://cloud.tamersunion.net/?user/loginSubmit&login_token='.urlencode($login_token);
+    return $url;
 }
 
 /**
@@ -778,7 +685,7 @@ function clrs_shortcode_time($atts, $content = '')
 }
 
 /**
- * 短代码： 登陆可见
+ * 短代码： 登录可见
  */
 function clrs_shortcode_for_members($atts, $content = '')
 {
@@ -786,8 +693,8 @@ function clrs_shortcode_for_members($atts, $content = '')
         return $content;
     } else {
         $_ = '<div class="view_after_login" style="text-align:center;border:1px dashed #FF9A9A;padding:8px;margin:10px auto;color: white; background: rgba(255,102,102,0.45);">';
-        $_a = '<a href="' . wp_login_url(get_permalink()) . '">' . __('登陆', 'clrs') . '</a>';
-        $_ .= sprintf(__('本段隐藏内容 %s 后可见', 'clrs'), $_a);
+        $_a = '<a href="' . wp_login_url(get_permalink()) . '">' . __('登录', 'clrs') . '</a>';
+        $_ .= sprintf(__('此内容需 %s 后方可浏览', 'clrs'), $_a);
         $_ .= '</div>';
         return $_;
     }
@@ -885,33 +792,6 @@ function clrs_shortcode_pfcard_container($atts, $content = '')
     return '<div class="container"><div class="row">' . do_shortcode($content) . '</div></div>';
 }
 
-/**
- * 短代码： 新闻
- */
-function clrs_shortcode_news_list($atts, $content = '')
-{
-    return '<ul class="clrs_news_list">' . clrs_shortcode_content($content) . '</ul>';
-}
-
-function clrs_shortcode_news_item($atts, $content = '')
-{
-    return '<li class="clrs_news_item">' . clrs_shortcode_content($content) . '</li>';
-}
-
-function clrs_shortcode_news_title($atts, $content = '')
-{
-    $atts = shortcode_atts(['size' => 'normal'], $atts, 'news_title');
-    $class = 'clrs_news_title';
-    if ($atts['size'] === 'small') {
-        $class = 'clrs_news_title_small';
-    }
-    return '<div class="' . $class . '">' . clrs_shortcode_content($content) . '</div>';
-}
-
-function clrs_shortcode_news_content($atts, $content = '')
-{
-    return '<div class="clrs_news_content">' . clrs_shortcode_content($content) . '</div>';
-}
 
 /**
  * 短代码注册
@@ -923,12 +803,9 @@ function clrs_shortcode_register()
     add_shortcode('for_members', 'clrs_shortcode_for_members');
     add_shortcode('pfcard', 'clrs_shortcode_pfcard');
     add_shortcode('pfcard_container', 'clrs_shortcode_pfcard_container');
-
-    add_shortcode('news_list', 'clrs_shortcode_news_list');
-    add_shortcode('news_item', 'clrs_shortcode_news_item');
-    add_shortcode('news_title', 'clrs_shortcode_news_title');
-    add_shortcode('news_content', 'clrs_shortcode_news_content');
     
+    add_shortcode('user_ip', 'clrs_shortcode_user_ip');
+    add_shortcode('kod_login','clrs_shortcode_kodexplorer_login');
     //换行
     add_shortcode('brtag', function () {
         return '<br />';
@@ -936,23 +813,6 @@ function clrs_shortcode_register()
 }
 add_action('init', 'clrs_shortcode_register');
 
-/**
- * 禁止填写姓名(应Hanada要求)
- */
-if (current_user_can('manage_options') && $pagenow == 'profile.php' && !isset($_COOKIE['admin'])) {
-    add_action('admin_footer', function () { ?>
-	<script>
-	    jQuery(document).ready( function($) {
-			$('.user-first-name-wrap input, .user-last-name-wrap input')
-			.attr("disabled", "disabled")
-			.attr("placeholder", "已禁用")
-			.attr("value", "")
-			.val('');
-	    });
-	</script>
-	<?php 
-});
-}
 
 /**
  * 菜单图标
@@ -968,85 +828,33 @@ function clrs_menu_opt($sorted_menu_items)
 }
 add_filter('wp_nav_menu_objects', 'clrs_menu_opt');
 
-/**
- * 登陆重定向
- */
-if (!empty(get_option('clrs_login_redirect'))) {
-    add_filter('login_redirect', function ($url, $query, $user) {
-        if ($url === home_url() . '/wp-admin/') {
-            return get_option('clrs_login_redirect');
-        } else if (empty($url)) {
-            return home_url();
-        } else {
-            return $url;
-        }
-    }, 10, 3);
-}
 
 /**
- * 注册时填写昵称
+ * 移除自动添加p和br标签功能
  */
-add_action('register_form', 'additional_profile_fields', -1);
-function additional_profile_fields()
-{ ?>
-    <p>
-        <label><?php _e('昵称') ?><br />
-        <input type="text" name="nickname" id="nickname" class="input" size="25" tabindex="20" />
-        </label>
-    </p>
-<?php 
-}
-
-// 检测表单字段是否为空，如果为空显示提示信息
-add_action('register_post', function ($sanitized_user_login, $user_email, $errors) {
-    if (!isset($_POST['nickname'])) {
-        return $errors->add('nicknameempty', '<strong>ERROR</strong>: 请输入您的昵称.');
-    }
-}, 10, 3);
-
-// 将用户填写的字段内容保存到数据库中
-add_action('user_register', 'insert_register_fields');
-function insert_register_fields($user_id)
-{
-    $nickname = apply_filters('pre_user_nickname', $_POST['nickname']);
-    wp_update_user([
-        'ID' => $user_id,
-        'nickname' => $nickname,
-        'display_name' => $nickname,
-    ]);
-}
+remove_filter ('the_content', 'wpautop');
 
 /**
  * 登陆页面样式
  */
-function custom_login()
-{
-    $clrs_opbg_des = clrs_checkRandURI(get_option('clrs_opbg_des'), 'clrs_opbg_des');
-    $clrs_opcl_des = get_option('clrs_opcl_des');
-    $clrs_opbg_mobi = clrs_checkRandURI(get_option('clrs_opbg_mobi'), 'clrs_opbg_mobi');
-    $clrs_opcl_mobi = get_option('clrs_opcl_mobi');
-    if (!empty($clrs_opcl_mobi)) {
-        echo '<meta name="theme-color" content="' . $clrs_opcl_mobi . '" />';
-    }
-    echo "<style>";
-    echo '@media screen and (min-width: 600px){';
-    if (!empty($clrs_opbg_des)) echo "body { background-image: url('" . $clrs_opbg_des . "'); }";
-    if (!empty($clrs_opcl_des)) echo "body { background-color: " . $clrs_opcl_des . "; }";
-    include('style.login.css');
-    echo '}';
-    echo "</style>";
-
-    echo "<script type=\"text/javascript\">";
-    echo "	jQuery(document).ready(function() {";
-    echo "		  jQuery('input.input').attr('spellcheck', 'false');";
-    echo "	});";
-    echo "</script>";
-}
-add_action('login_head', 'custom_login');
+include "functions.login.php";
 
 /**
- * 删除七牛插件提示
+ * 头像功能 
  */
-remove_filter('wpjam_pages', 'wpjam_topic_admin_pages');
-remove_filter('wpjam_network_pages', 'wpjam_topic_admin_pages');
-remove_action('admin_notices', 'wpjam_add_topic_messages_admin_notices');
+include "functions.avatar.php";
+
+/**
+ * 新闻简讯功能
+ */
+include "functions.news.php";
+
+/**
+ * 访问权限控制
+ */
+include "functions.access.php";
+
+/**
+ * 账户资料相关功能
+ */
+include "functions.account.php";
